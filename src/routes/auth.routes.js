@@ -19,12 +19,12 @@ Router.post("/register", async (req, res) => {
           ? "user already exists"
           : "username is taken taken already",
     });
-  } 
+  }
 
-  if(!password){
+  if (!password) {
     return res.status(400).json({
-        message:"password required"
-    })
+      message: "password required",
+    });
   }
 
   const hash = await bcrypt.hash(password, 12);
@@ -50,12 +50,58 @@ Router.post("/register", async (req, res) => {
   res.status(201).json({
     message: "your account created successfully",
     user: {
-        username:user.username,
-        email:user.email,
-        profile_img:user.profile_img,
-        bio:user.bio
-    }
+      username: user.username,
+      email: user.email,
+      profile_img: user.profile_img,
+      bio: user.bio,
+    },
   });
+});
+
+Router.post("/login", async (req, res) => {
+
+  const {username, email, password } = req.body;
+  
+  const isUserExists = await userModel.findOne({
+    $or:[
+        {email},
+        {username}
+    ]
+  })
+
+  if(!isUserExists){
+    return res.status(404).json({
+        message:"user not found"
+    })
+  }
+
+  const isPasswordMatched =await bcrypt.compare(password,isUserExists.password)
+
+  if(!isPasswordMatched){
+    return res.status(401).json({
+        message:"invalid password"
+    })
+  }
+
+  const token = await jwt.sign({
+    id:isUserExists._id
+  },
+   process.env.JWT_SECRETS,
+   {expiresIn:"1h"}
+)
+
+res.cookie("jwt_token",token)
+
+res.status(200).json({
+    message:"login successfully",
+    user:{
+        name:isUserExists.name,
+        email:isUserExists.email,
+        bio:isUserExists.bio,
+        profile_img:isUserExists.profile_img
+    }
+})
+
 });
 
 module.exports = Router;
