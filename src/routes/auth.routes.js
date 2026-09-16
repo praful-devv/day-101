@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken")
 const Router = express.Router()
 
 Router.post("/register",async(req,res)=>{
-    const {name,email,password} = req.body
+    const { username, email, password, bio, profile_img} = req.body;
 
     const isUserExists = await userModel.findOne({email})
 

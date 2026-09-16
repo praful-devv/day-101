@@ -1,12 +1,25 @@
 const mongoose = require("mongoose")
 
 const userSchema = new mongoose.Schema({
-    name:String,
+    username:{
+        type:String,
+        unique:true,
+        require:true 
+    },
     email:{
         type:String,
-        unique:true
+        unique:true,
+        require:true
     },
-    password:String
+    password:{
+        type:String,
+        require:true
+    },
+    profile_img:{
+        type:String,
+        default:"https://ik.imagekit.io/swcg5kd9g/default_img.jpg"
+    },
+    bio:String
 })
 
 const userModel = mongoose.model("users",userSchema)
