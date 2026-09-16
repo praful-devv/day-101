@@ -8,18 +8,22 @@ const Router = express.Router()
 Router.post("/register",async(req,res)=>{
     const { username, email, password, bio, profile_img} = req.body;
 
-    const isUserExists = await userModel.findOne({email})
-
+    const isUserExists = await userModel.findOne({
+        $or:[
+            {username},{email}
+        ]
+    })
+   
     if(isUserExists){
         return res.status(409).json({
-            message:"user already exists"
+            message:"user exists already"
         })
     }
 
     const hash = await bcrypt.hash(password,12)
 
     const user = await userModel.create({
-        name,email,password:hash
+        username,email,password:hash,bio,profile_img
     })
 
     const token = await jwt.sign(
